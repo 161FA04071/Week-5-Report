@@ -1,0 +1,27 @@
+Business Problem:
+Data that might contribute to determining player improvement might include his performance last season, his age, his draft status, his position, and metrics that describe what kind of player he is. This project aims to predict whether and how much a player will improve the next season based on these data.
+
+Interests:
+Obviously, NBA teams would be very interested in accurate prediction of player improvement,for competitive advantage and business values. Others who are interested in NBA such as fans and fantasy basketball players may also be interested.
+
+Source of the Data:
+Most player stats, position, age, and draft position data can be found in two Kaggle datasets here and here. These two datasets, however, lack data for certain years. For example, the player stats dataset ends in 2017, and the player draft dataset starts in 1978 and ends in 2015. To complement these two datasets, I scraped basketball-reference.com for player season stats of 2018 and player draft positions of 1965-1977 and 2016-2017 (players drafted in 2018 has yet to play in NBA).
+
+Exploratory Data Analysis:
+Target Varbale Calculation:
+Player improvement year over year was not a feature in the dataset, and had to be calculated.I chose to calculate the difference of win shares between two consecutive years as the target variable. Win shares were chosen out of a few metrics because it is the most interpretable, after all, we play basketball to win. Calculated player improvement had a normal distribution centered around 0, with most values between -6 and 6. To verify if this calculation is consistent with people’s eye-test of player improvement, I plotted the rank of improvement of past Most Improved Players winners among all players, and found that in most cases, they were among the most improved players. This suggested that the chosen metric of player improvement, was a reasonable one.
+
+
+Predictive Modeling:
+There are two types of models, regression and classification, that can be used to predict player improvement. Regression models can provide additional information on the amount of improvement, while classification models focus on the probabilities a player might improve.
+
+Regression models:
+Applying standard algorithms and their problems I applied linear models (linear regression, Ridge regression, and Lasso regression), support vector machines (SVM), random forest, and gradient boost models to the dataset, using root mean squared error (RMSE) as the tuning and evaluation metric. The results all had the same problems. The predicted values had much narrow range than the actual values (Figure 8), and as a result, the prediction errors were larger as the actual values deviated further from zero (Figure 9).These results were not acceptable, because players with large improvement/decline were rguably more important for NBA teams to predict than players with little change in performance. Having larger errors on those predictions was obviously not desirable.
+
+Solution to the problems:
+The reason behind these problems were the uneven distribution of player improvement, in that players with little improvement/decline were more common than players with big improvement/decline (Figure 8). Therefore, the models tried to prioritize minimizing errors on players with little improvement/decline when RMSE was used as the evaluation metric. My solution to this problem was to assign weights to samples based on the inverse of the abundances of target values. In other words, players with large improvement/decline would have higher weights in model training and evaluation because they were more rare. Using this method, all models predicted target values with similar range and distribution as the actual target values.
+
+Classification models: The application of classification models was much more straightforward. I divided the samples into two classes (improvement>=0 or <0). The number of samples in each class were about the same. I chose logarithmic loss as the metric here because the results would probably be presented with probabilities and logarithmic loss puts more emphasis on the probabilities than other metrics. Logistic regression, SVM, random forest, gradient boost models and a voting model were tuned and built. Among the individual models, the SVM model performed the best (~67.5% accuracy), and voting model performed similarly as the SVM model (Table 3), though the differences between models were small.
+
+Conclusions:
+In this study, I analyzed the relationship between NBA players’ improvement/decline and their performance and biographic data. I identified age, win share, minutes/games played, improvement last season among the most important features that affect a player’s improvement next season. I built both regression models and classification models to predict whether and how much a player would improve/decline. These models can be very useful in helping NBA team management in a number of ways. For example, it could help identify players to acquire, estimate the size of the contract to offer players, plan for performance changes of players already on the team, etc.
